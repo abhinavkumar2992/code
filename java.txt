@@ -1,0 +1,134 @@
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Comparator;
+import java.util.List;
+import java.util.Scanner;
+
+public class WarnsdorffAlgorithm {
+
+    private static final int[] ROW_MOVES = { -2, -1, 1, 2, 2, 1, -1, -2 };
+    private static final int[] COL_MOVES = { 1, 2, 2, 1, -1, -2, -2, -1 };
+
+    public static void main(String[] args) {
+        Scanner scanner = new Scanner(System.in);
+
+        System.out.print("Enter the size of the chessboard (N x N): ");
+        int N = scanner.nextInt();
+
+        System.out.print("Enter the starting row for the knight: ");
+        int startRow = scanner.nextInt();
+
+        System.out.print("Enter the starting column for the knight: ");
+        int startCol = scanner.nextInt();
+
+        scanner.close();
+
+        int[][] chessboard = new int[N][N];
+        for (int i = 0; i < N; i++) {
+            Arrays.fill(chessboard[i], -1);
+        }
+
+        if (warnsdorffsAlgorithm(chessboard, N, startRow, startCol, 1)) {
+            printSolution(chessboard, N);
+        } else {
+            System.out.println("Knight's tour is not possible.");
+        }
+    }
+
+    private static boolean isValidMove(int x, int y, int[][] chessboard, int N) {
+        return (x >= 0 && y >= 0 && x < N && y < N && chessboard[x][y] == -1);
+    }
+
+    private static int getDegree(int x, int y, int[][] chessboard, int N) {
+        int degree = 0;
+        for (int i = 0; i < ROW_MOVES.length; i++) {
+            int nextX = x + ROW_MOVES[i];
+            int nextY = y + COL_MOVES[i];
+            if (isValidMove(nextX, nextY, chessboard, N)) {
+                degree++;
+            }
+        }
+        return degree;
+    }
+
+    private static boolean warnsdorffsAlgorithm(int[][] chessboard, int N, int row, int col, int moveNumber) {
+        chessboard[row][col] = moveNumber;
+
+        if (moveNumber == N * N) {
+            return true;
+        }
+
+        List<int[]> nextMoves = new ArrayList<>();
+        for (int i = 0; i < ROW_MOVES.length; i++) {
+            int nextRow = row + ROW_MOVES[i];
+            int nextCol = col + COL_MOVES[i];
+            if (isValidMove(nextRow, nextCol, chessboard, N)) {
+                int degree = getDegree(nextRow, nextCol, chessboard, N);
+                nextMoves.add(new int[] { nextRow, nextCol, degree });
+            }
+        }
+
+        nextMoves.sort(Comparator.comparingInt(arr -> arr[2]));
+
+        for (int[] nextMove : nextMoves) {
+            int nextRow = nextMove[0];
+            int nextCol = nextMove[1];
+            if (warnsdorffsAlgorithm(chessboard, N, nextRow, nextCol, moveNumber + 1)) {
+                return true;
+            }
+            chessboard[nextRow][nextCol] = -1; // Backtrack
+        }
+
+        return false;
+    }
+
+    private static void printSolution(int[][] chessboard, int N) {
+        System.out.println("Knight's Tour:");
+        for (int[] row : chessboard) {
+            for (int cell : row) {
+                System.out.printf("%2d ", cell);
+            }
+            System.out.println();
+        }
+    }
+}
+
+
+
+import java.util.*;
+
+public class SortedUniquePermutations {
+
+    public static void main(String[] args) {
+        Scanner scanner = new Scanner(System.in);
+        List<Integer> inputList = new ArrayList<>();
+
+        // Taking user inputs
+        System.out.println("Enter integers (one per line). Enter a non-integer to stop:");
+        while (scanner.hasNextInt()) {
+            int input = scanner.nextInt();
+            inputList.add(input);
+        }
+        scanner.close();
+
+        // Sort the input list
+        Collections.sort(inputList);
+
+        // Generate and print sorted unique permutations
+        System.out.println("Sorted Unique Permutations:");
+        generateSortedUniquePermutations(inputList, 0, new ArrayList<>(), new HashSet<>());
+    }
+
+    private static void generateSortedUniquePermutations(List<Integer> inputList, int index, List<Integer> currentPermutation, Set<List<Integer>> uniquePermutations) {
+        if (index == inputList.size()) {
+            uniquePermutations.add(new ArrayList<>(currentPermutation));
+            return;
+        }
+
+        for (int i = 0; i <= currentPermutation.size(); i++) {
+            currentPermutation.add(i, inputList.get(index));
+            generateSortedUniquePermutations(inputList, index + 1, currentPermutation, uniquePermutations);
+            currentPermutation.remove(i);
+        }
+    }
+}
